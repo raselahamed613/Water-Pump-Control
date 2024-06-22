@@ -1,6 +1,6 @@
 ///low to midlow fill time =4.45
 ////MidLow to Mid fill time =4.30
-////Mid to Full fill time =
+////Mid to Full fill time = 
 ////
 #include <Wire.h>
 
@@ -12,10 +12,10 @@
 #define FULL_Float 34
 #define RELAY 25
 #define BUZZER 26
-#define LOW_LED  12//27
-#define MID_LOW_LED 14
-#define MID_LED 27//12
-#define FULL_LED 13
+#define LOW_LED  4//12//27       //RED
+#define MID_LOW_LED 13          // YELLOW
+#define MID_LED 14//12          // GREEN
+#define FULL_LED 27             // FULL GREEN
 #define Status_LED_PIN 2
 
 
@@ -27,7 +27,7 @@
 int lowSensorValue, midLowSensorValue, midSensorValue, fullSensorValue;
 bool LOW_LED_State = false, MID_LOW_LED_State = false, MID_LED_State = false, FULL_LED_State = false, Status_LED_PIN_State = false;
 
-LiquidCrystal_I2C lcd(0x25, 16, 2);  // my I2C Address 0x25
+LiquidCrystal_I2C lcd(0x27, 16, 2);  // my I2C Address 0x25
 
 unsigned long startMillis, mainLoopTime, tempTime, mainLoopTime1;
 const unsigned long interval = 5 * 60 * 1000;  // 15 minutes in milliseconds
@@ -55,7 +55,7 @@ void setup() {
   mainLoopTime1 = startMillis;
   All_Pins_Config();
   delay(500);
-  Test_HW();
+  // Test_HW();
   // I2C_ADDRESS();
 }
 
@@ -65,15 +65,16 @@ void loop() {
     Debugg();
     mainLoopTime = tempTime;
   }
-  // if (tempTime - mainLoopTime1 > TIMEOUT_1_MIN) {
-  //   Status_LED_PIN_State = false;
-  //   mainLoopTime1 = tempTime;
-  // }
+  if (tempTime - mainLoopTime1 > TIMEOUT_1_MIN) {
+    Status_LED_PIN_State = false;
+    mainLoopTime1 = tempTime;
+  }
 
-  display();
+  // display();
   FloatSensor();
   // Status_LED();
   // MotorControl();
+  
 }
 
 void load_OnTime() {
@@ -96,7 +97,7 @@ void I2C_ADDRESS() {
     Wire.beginTransmission(address);
     error = Wire.endTransmission();
     if (error == 0) {
-      Serial.print("I2C device found at address 0x");
+      Serial.print("I2C device found at   0x");
       if (address < 16) {
         Serial.print("0");
       }
@@ -135,6 +136,12 @@ void FloatSensor() {
       Status_LED_PIN_State = true;
       digitalWrite(RELAY, HIGH);  // Turn on motor
       Serial.print("Emergency Turn On Motor!  ");   
+      lcd.clear();
+      lcd.setCursor(0, 0);
+      lcd.print("Emergency Turn On Motor!");
+      lcd.setCursor(0, 1);
+      lcd.print("Water Tank Empty!");
+      delay(500);
       break;
     case 2:  // MID_LOW sensor activated
       MID_LOW_LED_State = true;
@@ -153,6 +160,10 @@ void FloatSensor() {
       break;
     default:
       digitalWrite(RELAY, LOW);  // Default state
+      lcd.clear();
+      lcd.setCursor(0, 1);
+      lcd.print("Water Tank Full");
+      delay(300);
       break;
   }
 }
@@ -191,13 +202,13 @@ void Debugg() {
   Serial.print(", Motor State: ");        Serial.println(digitalRead(RELAY));
 }
 void Test_HW(){
-  // digitalWrite(RELAY, 1);           delay(2000);  digitalWrite(RELAY, 0);             delay(2000);
-  // digitalWrite(BUZZER, 1);          delay(2000);  digitalWrite(BUZZER, 0);            delay(2000);
-  // digitalWrite(LOW_LED, 0);         delay(2000);  digitalWrite(LOW_LED, 1);           delay(2000);
-  // digitalWrite(MID_LOW_LED, 1);     delay(2000);  digitalWrite(MID_LOW_LED, 0);       delay(2000);
-  // digitalWrite(MID_LED, 0);         delay(2000);  digitalWrite(MID_LED, 1);           delay(2000);
-  digitalWrite(FULL_LED, 0);        delay(2000);  digitalWrite(FULL_LED, 1);          delay(2000);
-  // digitalWrite(Status_LED_PIN, 1);  delay(2000);  digitalWrite(Status_LED_PIN, 0);    delay(2000);
+  digitalWrite(RELAY, 1);           delay(2000);  digitalWrite(RELAY, 0);             delay(2000);    // Relay
+  digitalWrite(BUZZER, 1);          delay(2000);  digitalWrite(BUZZER, 0);            delay(2000);    // Buzzer
+  digitalWrite(LOW_LED, 0);         delay(2000);  digitalWrite(LOW_LED, 1);           delay(2000);    // RED LED
+  digitalWrite(MID_LOW_LED, 0);     delay(2000);  digitalWrite(MID_LOW_LED, 1);       delay(2000);    // LOWER MID YELLOW LED
+  digitalWrite(MID_LED, 0);         delay(2000);  digitalWrite(MID_LED, 1);           delay(2000);    // UPPER MID GREEN LED
+  digitalWrite(FULL_LED, 0);        delay(2000);  digitalWrite(FULL_LED, 1);          delay(2000);    // FULL LED
+  digitalWrite(Status_LED_PIN, 1);  delay(2000);  digitalWrite(Status_LED_PIN, 0);    delay(2000);    // STATUS
 }
 void All_Pins_Config(){
   digitalWrite(RELAY, 0);             
