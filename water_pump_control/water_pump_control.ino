@@ -1,4 +1,7 @@
-
+///low to midlow fill time =4.45
+////MidLow to Mid fill time =4.30
+////Mid to Full fill time =
+////
 #include <Wire.h>
 
 #include <LiquidCrystal_I2C.h>
@@ -121,26 +124,26 @@ void FloatSensor() {
   fullSensorValue = digitalRead(FULL_Float);
 
   int state = 0;
-  if (fullSensorValue == HIGH) state = 4;
-  else if (midSensorValue == HIGH) state = 3;
-  else if (midLowSensorValue == HIGH) state = 2;
-  else if (lowSensorValue == HIGH) state = 1;
+  if (lowSensorValue == LOW && midLowSensorValue == LOW && midSensorValue == LOW && fullSensorValue == LOW) state = 4;
+  else if (lowSensorValue == LOW && midLowSensorValue == LOW && midSensorValue == LOW && fullSensorValue == HIGH) state = 3;
+  else if (lowSensorValue == LOW && midLowSensorValue == LOW && midSensorValue == HIGH && fullSensorValue == HIGH) state = 2;
+  else if (lowSensorValue == LOW && midLowSensorValue == HIGH && midSensorValue == HIGH && fullSensorValue == HIGH) state = 1;
   // MotorControl();
   switch (state) {
     case 1:  // LOW sensor activated
       LOW_LED_State = true;
       Status_LED_PIN_State = true;
       digitalWrite(RELAY, HIGH);  // Turn on motor
-      Serial.print("Emergency Turn On Motor!  ");
+      Serial.print("Emergency Turn On Motor!  ");   
       break;
     case 2:  // MID_LOW sensor activated
       MID_LOW_LED_State = true;
-      digitalWrite(RELAY, LOW);  // Turn off motor
+      digitalWrite(RELAY, HIGH);  // Turn off motor
       Serial.print("Water Level Low!  ");
       break;
     case 3:  // MID sensor activated
       MID_LED_State = true;
-      digitalWrite(RELAY, LOW);  // Turn off motor
+      digitalWrite(RELAY, HIGH);  // Turn off motor
       Serial.print("Water Level MID!  ");
       break;
     case 4:  // FULL sensor activated
@@ -153,13 +156,13 @@ void FloatSensor() {
       break;
   }
 }
-// void Status_LED() {
-//   digitalWrite(LOW_LED, LOW_LED_State ? HIGH : LOW);
-//   digitalWrite(MID_LOW_LED, MID_LOW_LED_State ? HIGH : LOW);
-//   digitalWrite(MID_LED, MID_LED_State ? HIGH : LOW);
-//   digitalWrite(FULL_LED, FULL_LED_State ? HIGH : LOW);
-//   digitalWrite(Status_LED_PIN, Status_LED_PIN_State ? HIGH : LOW);
-// }
+void Status_LED() {
+  digitalWrite(LOW_LED, LOW_LED_State ? LOW : HIGH);
+  digitalWrite(MID_LOW_LED, MID_LOW_LED_State ? LOW : HIGH);
+  digitalWrite(MID_LED, MID_LED_State ? LOW : HIGH);
+  digitalWrite(FULL_LED, FULL_LED_State ? LOW : HIGH);
+  digitalWrite(Status_LED_PIN, Status_LED_PIN_State ? HIGH : LOW);
+}
 // void MotorControl() {
 
 // }
