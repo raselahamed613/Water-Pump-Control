@@ -72,7 +72,7 @@ void loop() {
 
   // display();
   FloatSensor();
-  // Status_LED();
+  Status_LED();
   // MotorControl();
   
 }
@@ -125,53 +125,76 @@ void FloatSensor() {
   fullSensorValue = digitalRead(FULL_Float);
 
   int state = 0;
-  if (lowSensorValue == LOW && midLowSensorValue == LOW && midSensorValue == LOW && fullSensorValue == LOW) state = 4;
+  if (lowSensorValue == LOW && midLowSensorValue == LOW && midSensorValue == LOW && fullSensorValue == LOW) state = 4;            //low means water full
   else if (lowSensorValue == LOW && midLowSensorValue == LOW && midSensorValue == LOW && fullSensorValue == HIGH) state = 3;
   else if (lowSensorValue == LOW && midLowSensorValue == LOW && midSensorValue == HIGH && fullSensorValue == HIGH) state = 2;
   else if (lowSensorValue == LOW && midLowSensorValue == HIGH && midSensorValue == HIGH && fullSensorValue == HIGH) state = 1;
   // MotorControl();
   switch (state) {
     case 1:  // LOW sensor activated
-      LOW_LED_State = true;
-      Status_LED_PIN_State = true;
+      // LOW_LED_State = true;
+      // Status_LED_PIN_State = true;
+      LOW_LED_State = 0, MID_LOW_LED_State = 1, MID_LED_State = 1, FULL_LED_State = 1;
       digitalWrite(RELAY, HIGH);  // Turn on motor
-      Serial.print("Emergency Turn On Motor!  ");   
+      // Serial.print("Emergency Turn On Motor!  ");   
       lcd.clear();
       lcd.setCursor(0, 0);
-      lcd.print("Emergency Turn On Motor!");
+      lcd.print("Emergency On Motor!");
       lcd.setCursor(0, 1);
       lcd.print("Water Tank Empty!");
       delay(500);
       break;
     case 2:  // MID_LOW sensor activated
-      MID_LOW_LED_State = true;
-      digitalWrite(RELAY, HIGH);  // Turn off motor
-      Serial.print("Water Level Low!  ");
+      // MID_LOW_LED_State = true;
+      LOW_LED_State = 0, MID_LOW_LED_State = 0, MID_LED_State = 1, FULL_LED_State = 1;
+      // digitalWrite(RELAY, HIGH);  // Turn off motor
+      // Serial.print("Water Level Low!  ");
+      lcd.clear();
+      lcd.setCursor(0, 0);
+      lcd.print("Water Lower Mid");
+      lcd.setCursor(0, 1);
+      lcd.print("Water 600L");
+      delay(500);
       break;
     case 3:  // MID sensor activated
-      MID_LED_State = true;
-      digitalWrite(RELAY, HIGH);  // Turn off motor
-      Serial.print("Water Level MID!  ");
+      // MID_LED_State = true;
+      LOW_LED_State = 0, MID_LOW_LED_State = 0, MID_LED_State = 0, FULL_LED_State = 1;
+      // digitalWrite(RELAY, HIGH);  // Turn off motor
+      // Serial.print("Water Level MID!  ");
+      lcd.clear();
+      lcd.setCursor(0, 0);
+      lcd.print("Water Uper Mid");
+      lcd.setCursor(0, 1);
+      lcd.print("Water 1200L");
+      delay(500);
       break;
     case 4:  // FULL sensor activated
-      FULL_LED_State = true;
+      // FULL_LED_State = true;
+      LOW_LED_State = 0, MID_LOW_LED_State = 0, MID_LED_State = 0, FULL_LED_State = 0;
       digitalWrite(RELAY, LOW);  // Turn off motor
-      Serial.print("Water Level Full  ");
+      // Serial.print("Water Level Full  ");
+      lcd.clear();
+      lcd.setCursor(0, 0);
+      lcd.print("Water Full");
+      lcd.setCursor(0, 1);
+      lcd.print("Water 2000L");
+      delay(500);
+
       break;
     default:
       digitalWrite(RELAY, LOW);  // Default state
       lcd.clear();
       lcd.setCursor(0, 1);
-      lcd.print("Water Tank Full");
-      delay(300);
+      lcd.print("Any Fault!!");
+      delay(500);
       break;
   }
 }
 void Status_LED() {
-  digitalWrite(LOW_LED, LOW_LED_State ? LOW : HIGH);
-  digitalWrite(MID_LOW_LED, MID_LOW_LED_State ? LOW : HIGH);
-  digitalWrite(MID_LED, MID_LED_State ? LOW : HIGH);
-  digitalWrite(FULL_LED, FULL_LED_State ? LOW : HIGH);
+  digitalWrite(LOW_LED, LOW_LED_State ? HIGH : LOW);
+  digitalWrite(MID_LOW_LED, MID_LOW_LED_State ?  HIGH : LOW);
+  digitalWrite(MID_LED, MID_LED_State ?  HIGH : LOW);
+  digitalWrite(FULL_LED, FULL_LED_State ? HIGH : LOW);
   digitalWrite(Status_LED_PIN, Status_LED_PIN_State ? HIGH : LOW);
 }
 // void MotorControl() {
